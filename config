@@ -1,17 +1,17 @@
 *** General ***
 
-owner    = Peter Random
-contact  = some@address.nowhere
+owner = Peter Random
+contact = some@address.nowhere
 mailhost = my.mail.host
 sendmail = /usr/sbin/sendmail
 # NOTE: do not put the Image Cache below cgi-bin
 # since all files under cgi-bin will be executed ... this is not
 # good for images.
 imgcache = /opt/smokeping/htdocs/cache
-imgurl   = cache
-datadir  = /opt/smokeping/htdocs/data
-piddir  = /opt/smokeping/htdocs/var
-cgiurl   = http://some.url/smokeping.cgi
+imgurl = cache
+datadir = /opt/smokeping/htdocs/data
+piddir = /opt/smokeping/htdocs/var
+cgiurl = http://some.url/smokeping.cgi
 smokemail = /opt/smokeping/etc/smokemail.dist
 tmail = /opt/smokeping/etc/tmail.dist
 # specify this to get syslog logging
