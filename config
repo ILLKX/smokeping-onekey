@@ -47,6 +47,8 @@ AVERAGE  0.5 144   720
 
 *** Presentation ***
 
+charset = utf-8
+
 template = @prefix@/etc/basepage.html.dist
 htmltitle = yes
 graphborders = no
