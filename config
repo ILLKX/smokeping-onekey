@@ -50,8 +50,6 @@ AVERAGE  0.5 144   720
 charset = utf-8
 
 template = /opt/smokeping/etc/basepage.html.dist
-htmltitle = yes
-graphborders = no
 
 + charts
 
@@ -112,7 +110,7 @@ unison_tolerance = 2
 binary = /usr/sbin/fping
 
 *** Slaves ***
-secrets=@prefix@/etc/smokeping_secrets.dist
+secrets=/opt/smokeping/etc/smokeping_secrets.dist
 +boomer
 display_name=boomer
 color=0000ff
