@@ -157,7 +157,7 @@ sub get_multi_detail ($$$$;$){
             ("dummy", 
             '--start', $tasks[0][1],
             '--end', $tasks[0][2],
-            '--font TITLE:20:"WenQuanYi Zen Hei Mono"',
+            '--font', "TITLE:20:WenQuanYi Zen Hei Mono",
             "DEF:maxping=$cfg->{General}{datadir}${host}.rrd:median:AVERAGE",
             'PRINT:maxping:MAX:%le' );
             my $ERROR = RRDs::error();
