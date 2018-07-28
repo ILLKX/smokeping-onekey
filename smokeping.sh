@@ -386,14 +386,12 @@ case "$num" in
 
 6)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
-	Get_PID
-	kill -9 $PID 2> /dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 ;;
 
 7)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
-	Get_PID
-	kill -9 $PID 2> /dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 	${mode}_Run_SmokePing
 ;;
 
