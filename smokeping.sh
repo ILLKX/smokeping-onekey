@@ -145,6 +145,9 @@ Slaves_Run_SmokePing(){
 }
 
 Single_Install(){
+	echo
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
 	Download_Source
@@ -166,6 +169,8 @@ Slaves_Install(){
 	read -p "请输入Master地址 : " server_name
 	read -p "请输入Slaves名称 : " slaves_name
 	read -p "请输入Slaves密钥 : " slaves_secret
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
 	Download_Source
@@ -185,6 +190,8 @@ Slaves_Install(){
 Master_Install(){
 	echo
 	read -p "请输入Master地址 : " server_name
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
 	Download_Source
@@ -233,8 +240,7 @@ Uninstall(){
 		fi
 	done
 	if [[ $um == "y" ]]; then
-		Get_PID
-		kill -9 $PID 2> /dev/null
+		kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 		rm -rf /opt/smokeping
 		echo
 		echo -e "${Info} SmokePing 卸载完成!"
@@ -304,8 +310,7 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			Get_PID
-			kill -9 $PID 2> /dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 Master端!"
@@ -331,8 +336,7 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			Get_PID
-			kill -9 $PID 2> /dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 Slaves端!"
@@ -358,8 +362,7 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			Get_PID
-			kill -9 $PID 2> /dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 单机版!"
