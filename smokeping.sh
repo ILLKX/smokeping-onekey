@@ -13,6 +13,7 @@ smokeping_ver="/opt/smokeping/onekeymanage/ver"
 smokeping_key="/opt/smokeping/onekeymanage/key"
 smokeping_name="/opt/smokeping/onekeymanage/name"
 smokeping_host="/opt/smokeping/onekeymanage/host"
+tcpping="/usr/bin/tcpping"
 
 #Check Root
 [ $(id -u) != "0" ] && { echo "${CFAILURE}Error: You must be root to run this script${CEND}"; exit 1; }
@@ -228,6 +229,15 @@ Ask_Change_Source(){
 	yum install wget -y
 }
 
+Install_Tcpping(){
+	cd
+	rm -rf /usr/bin/tcpping
+	wget https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/tcpping
+	chmod 777 tcpping
+	mv tcpping /usr/bin/
+	echo -e "${Info} 安装 tcpping 完成"
+}
+
 #卸载SmokePing
 Uninstall(){
 	while :; do echo		
@@ -266,7 +276,9 @@ echo && echo -e "  SmokePing 一键管理脚本
  ${Green_font_prefix} 6.${Font_color_suffix} 停止 SmokePing
  ${Green_font_prefix} 7.${Font_color_suffix} 重启 SmokePing
   ————————————
- ${Green_font_prefix} 8.${Font_color_suffix} 退出
+ ${Green_font_prefix} 8.${Font_color_suffix} 安装 Tcpping
+  ————————————
+ ${Green_font_prefix} 9.${Font_color_suffix} 退出
   ————————————" && echo
 if [[ -e ${smokeping_ver} ]]; then
 	Get_PID
@@ -294,7 +306,13 @@ else
 	echo -e "当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 fi
 echo
-read -p "请输入数字 [1-8]:" num
+if [[ ! -e ${tcpping} ]]; then
+	echo -e "Tcpping状态: ${Red_font_prefix}未安装${Font_color_suffix}"
+else
+	echo -e "Tcpping状态: ${Green_font_prefix}已安装${Font_color_suffix}"
+fi
+echo
+read -p "请输入数字 [1-9]:" num
 
 case "$num" in
 	
@@ -399,11 +417,37 @@ case "$num" in
 ;;
 
 8)
+	if [[ -e ${tcpping} ]]; then
+		while :; do echo
+			echo -e "${Tip} 已经安装${Green_font_prefix} tcpping ${Font_color_suffix}，是否重新安装 [y/n]: "
+			read um
+			if [[ ! $um =~ ^[y,n]$ ]]; then
+				echo "输入错误! 请输入y或者n!"
+			else
+				break
+			fi
+		done
+		if [[ $um == "y" ]]; then
+			rm -rf /usr/bin/tcpping
+			echo
+			echo -e "${Info} tcpping 卸载完成! 开始安装 Tcpping!"
+			echo
+			sleep 5
+			Install_Tcpping
+			exit
+		else
+			exit
+		fi
+	fi
+	Install_Tcpping
+;;
+
+9)
 	exit
 ;;
 
 *)
-	echo "输入错误! 请输入正确的数字! [1-8]"
+	echo "输入错误! 请输入正确的数字! [1-9]"
 ;;
 
 esac
