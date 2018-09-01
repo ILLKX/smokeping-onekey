@@ -231,6 +231,7 @@ Ask_Change_Source(){
 
 Install_Tcpping(){
 	cd
+	yum install tcptraceroute -y
 	rm -rf /usr/bin/tcpping
 	wget https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/tcpping
 	chmod 777 tcpping
