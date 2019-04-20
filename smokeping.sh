@@ -37,7 +37,7 @@ Install_Epel(){
 
 #安装依赖
 Install_Dependency(){
-	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ wqy-zenhei-fonts.noarch -y
+	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ make wqy-zenhei-fonts.noarch -y
 }
 
 #下载smokeping
