@@ -129,14 +129,14 @@ Configure_Supervisor(){
 	wget -O /etc/supervisord.d/spawnfcgi.ini https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/spawnfcgi.ini
 	supervisord -c /etc/supervisord.conf
 	systemctl enable supervisord.service
-	systemctl start supervisord.service
-	systemctl reload supervisord.service
+	supervisorctl stop spawnfcgi
 }
 
 #启动Single服务
 Single_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
+	supervisorctl reload
 	supervisorctl start spawnfcgi
 	Change_Access
 }
@@ -145,6 +145,7 @@ Single_Run_SmokePing(){
 Master_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
+	supervisorctl reload
 	supervisorctl start spawnfcgi
 	Change_Access
 }
@@ -418,6 +419,7 @@ case "$num" in
 4)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
 	Uninstall
+	supervisorctl stop spawnfcgi
 ;;
 
 5)
