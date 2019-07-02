@@ -1,5 +1,7 @@
 # SmokePing一键管理脚本 #
 
+**此脚本会污染建站环境，请在Docker或干净的机器内使用**
+
 ## 介绍 ##
 一个Shell脚本，集成SmokePing三种版本(Master/Slaves/单机版)安装、启动、停止、重启等基本操作，方便用户操作。
 
@@ -7,17 +9,19 @@
 
 ## 系统支持 ## 
 * CentOS 7
-* CentOS 6 (有bug请反馈)
 
 ## 功能 ##
 - 一键启动、停止、重启SmokePing服务
 - 一键安装、卸载SmokePing三种版本
 - 一键安装Tcpping (Smokeping专用版本)
+- 安装supervisor以守护fcgi进程
+- 自动更换至GMT+8时区并对时
 - 自动更换阿里云源(可选)
 - 支持中文显示
 - 覆盖安装提醒
 
 ## 缺点 ##
+- 仅适配CentOS7系统
 - 未设置开机启动
 - Master端/单机版会自动安装Nginx并修改Nginx默认配置
 
@@ -34,6 +38,14 @@
 ![https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/1.jpg](1.jpg)
 
 ![https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/2.jpg](2.jpg)
+
+## 程序安装目录 ##
+- Nginx配置：/etc/nginx/ /etc/nginx/conf/
+- smokeping安装目录：/opt/smokeping/
+- smokeping配置文件：/opt/smokeping/etc/config
+- fcgi文件：/opt/smokeping/htdocs/smokeping.fcgi
+
+spawn-fcgi、Nginx、supervisor采用yum安装
 
 ## 参考资料 ##
 [CentOS7详细安装配置SmokePing教程-来自lala.im](https://lala.im/2821.html)

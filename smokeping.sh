@@ -37,7 +37,7 @@ Install_Epel(){
 
 #安装依赖
 Install_Dependency(){
-	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ make wqy-zenhei-fonts.noarch -y
+	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ make wqy-zenhei-fonts.noarch supervisor -y
 }
 
 #下载smokeping
@@ -93,6 +93,7 @@ Configure_Nginx(){
 #修改Nginx配置文件 Master
 Master_Configure_Nginx(){
 	wget -O /etc/nginx/conf.d/smokeping.conf https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/smokeping-master.conf
+	sed -i "s/local/$server_name/g" /etc/nginx/conf.d/smokeping.conf
 	rm -rf /etc/nginx/nginx.conf
 	wget -O /etc/nginx/nginx.conf https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/nginx.conf
 }
@@ -123,11 +124,20 @@ Slaves_Set_Secret(){
 	echo -e "${slaves_secret}" > /opt/smokeping/etc/smokeping_secrets.dist
 }
 
+#配置supervisor
+Configure_Supervisor(){
+	wget -O /etc/supervisord.d/spawnfcgi.ini https://raw.githubusercontent.com/ILLKX/smokeping-onekey/master/spawnfcgi.ini
+	supervisord -c /etc/supervisord.conf
+	systemctl enable supervisord.service
+	systemctl start supervisord.service
+	systemctl reload supervisord.service
+}
+
 #启动Single服务
 Single_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
-	spawn-fcgi -a 127.0.0.1 -p 9007 -P /var/run/smokeping-fastcgi.pid -u nginx -f /opt/smokeping/htdocs/smokeping.fcgi
+	supervisorctl start spawnfcgi
 	Change_Access
 }
 
@@ -135,7 +145,7 @@ Single_Run_SmokePing(){
 Master_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
-	spawn-fcgi -a 127.0.0.1 -p 9007 -P /var/run/smokeping-fastcgi.pid -u nginx -f /opt/smokeping/htdocs/smokeping.fcgi
+	supervisorctl start spawnfcgi
 	Change_Access
 }
 
@@ -147,7 +157,7 @@ Slaves_Run_SmokePing(){
 
 Single_Install(){
 	echo
-	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
@@ -159,6 +169,7 @@ Single_Install(){
 	Start_Nginx_Disable_Firewall
 	Change_Access
 	Disable_SELinux
+	Configure_Supervisor
 	Delete_Files
 	mkdir /opt/smokeping/onekeymanage
 	echo "Single" > ${smokeping_ver}
@@ -170,7 +181,7 @@ Slaves_Install(){
 	read -p "请输入Master地址 : " server_name
 	read -p "请输入Slaves名称 : " slaves_name
 	read -p "请输入Slaves密钥 : " slaves_secret
-	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
@@ -191,7 +202,7 @@ Slaves_Install(){
 Master_Install(){
 	echo
 	read -p "请输入Master地址 : " server_name
-	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 	rm -rf /opt/smokeping
 	Ask_Change_Source
 	Install_Dependency
@@ -204,6 +215,7 @@ Master_Install(){
 	Start_Nginx_Disable_Firewall
 	Change_Access
 	Disable_SELinux
+	Configure_Supervisor
 	Delete_Files
 	mkdir /opt/smokeping/onekeymanage
 	echo "Master" > ${smokeping_ver}
@@ -213,7 +225,7 @@ Master_Install(){
 #询问是否换源
 Ask_Change_Source(){
 	while :; do echo
-		echo -e "${Tip} 是否将系统源更换成阿里云国内源 [y/n]： "
+		echo -e "${Tip} 是否将系统源更换成阿里云源 (国内外均可用) [y/n]： "
 		read ifchangesource
 		if [[ ! $ifchangesource =~ ^[y,n]$ ]]; then
 			echo "输入错误! 请输入y或者n!"
@@ -251,8 +263,9 @@ Uninstall(){
 		fi
 	done
 	if [[ $um == "y" ]]; then
-		kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+		kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 		rm -rf /opt/smokeping
+		rm -rf /usr/bin/tcpping
 		echo
 		echo -e "${Info} SmokePing 卸载完成!"
 		echo
@@ -329,8 +342,10 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
+			rm -rf /usr/bin/tcpping
+			supervisorctl stop spawnfcgi
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 Master端!"
 			echo
@@ -355,8 +370,10 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
+			rm -rf /usr/bin/tcpping
+			supervisorctl stop spawnfcgi
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 Slaves端!"
 			echo
@@ -381,8 +398,10 @@ case "$num" in
 			fi
 		done
 		if [[ $um == "y" ]]; then
-			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+			kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 			rm -rf /opt/smokeping
+			rm -rf /usr/bin/tcpping
+			supervisorctl stop spawnfcgi
 			echo
 			echo -e "${Info} Smokeping ${mode2} 卸载完成! 开始安装 单机版!"
 			echo
@@ -408,12 +427,13 @@ case "$num" in
 
 6)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
-	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
+	supervisorctl stop spawnfcgi
 ;;
 
 7)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
-	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|awk '{print $2}'|xargs` 2>/dev/null
+	kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 	${mode}_Run_SmokePing
 ;;
 
