@@ -143,7 +143,6 @@ Single_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
 	supervisorctl reload
-	supervisorctl start spawnfcgi
 	Change_Access
 }
 
@@ -152,7 +151,6 @@ Master_Run_SmokePing(){
 	cd /opt/smokeping/bin
 	./smokeping --config=/opt/smokeping/etc/config --logfile=smoke.log
 	supervisorctl reload
-	supervisorctl start spawnfcgi
 	Change_Access
 }
 
@@ -276,6 +274,8 @@ Uninstall(){
 		kill -9 `ps -ef |grep "smokeping"|grep -v "grep"|grep -v "smokeping.sh"|grep -v "perl"|awk '{print $2}'|xargs` 2>/dev/null
 		rm -rf /opt/smokeping
 		rm -rf /usr/bin/tcpping
+		rm -rf /etc/supervisord.d/spawnfcgi.ini
+		supervisorctl reload
 		echo
 		echo -e "${Info} SmokePing 卸载完成!"
 		echo
@@ -428,7 +428,6 @@ case "$num" in
 4)
 	[[ ! -e ${smokeping_ver} ]] && echo -e "${Error} Smokeping 没有安装，请检查!" && exit 1
 	Uninstall
-	supervisorctl stop spawnfcgi
 ;;
 
 5)
