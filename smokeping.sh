@@ -37,7 +37,7 @@ Install_Epel(){
 
 #安装依赖
 Install_Dependency(){
-	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ make wqy-zenhei-fonts.noarch supervisor -y
+	yum install rrdtool perl-rrdtool perl-core openssl-devel fping curl gcc-c++ make wqy-zenhei-fonts.noarch supervisor curl -y
 }
 
 #下载smokeping
@@ -132,6 +132,12 @@ Configure_Supervisor(){
 	supervisorctl stop spawnfcgi
 }
 
+#同步时间
+Time_Synchronization(){
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 2>/dev/null
+	date -s "$(curl -sk --head https://dash.cloudflare.com | grep ^Date: | sed 's/Date: //g')"
+}
+
 #启动Single服务
 Single_Run_SmokePing(){
 	cd /opt/smokeping/bin
@@ -171,6 +177,7 @@ Single_Install(){
 	Change_Access
 	Disable_SELinux
 	Configure_Supervisor
+	Time_Synchronization
 	Delete_Files
 	mkdir /opt/smokeping/onekeymanage
 	echo "Single" > ${smokeping_ver}
@@ -191,6 +198,7 @@ Slaves_Install(){
 	Slaves_Set_Secret
 	Configure_SomkePing
 	Disable_SELinux
+	Time_Synchronization
 	Delete_Files
 	mkdir /opt/smokeping/onekeymanage
 	echo "Slaves" > ${smokeping_ver}
@@ -217,6 +225,7 @@ Master_Install(){
 	Change_Access
 	Disable_SELinux
 	Configure_Supervisor
+	Time_Synchronization
 	Delete_Files
 	mkdir /opt/smokeping/onekeymanage
 	echo "Master" > ${smokeping_ver}
